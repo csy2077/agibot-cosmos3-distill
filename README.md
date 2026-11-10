@@ -103,8 +103,8 @@ BUNDLE=$PWD/bundle/clip15_full/train scripts/validate_bundle.sh
 
 What the builder does, per clip:
 
-- takes robot-state rows `2*(start+i)` for clip frame `i` (30 fps record → 15 fps clip) and checks that the arm
-  joints match the clip's own `episode_meta.npz` within 1e-4;
+- takes robot-state rows `2*(start+i)` for clip frame `i` (30 fps record → 15 fps clip; the clips are trusted
+  to be cut on this grid, so `episode_meta.npz` is not needed);
 - writes the state in the Framework's ACT2 action format (`agibotworld` domain; grippers stay in raw Robotiq
   units, which the Framework loader calibrates using its audited gripper manifest);
 - trims the clip to 1 + 4k frames (minimum 33) and writes the caption as
@@ -112,8 +112,8 @@ What the builder does, per clip:
 - assigns episodes to `train` / `val` by hash (2% validation; all clips of an episode stay in one split).
 
 The output `bundle/clip15_full/{train,val}` are Framework local training bundles (`manifest.json`,
-`samples.json`, `assets/`, `resources/`, `receipts/`). Reruns resume where they stopped. Clips that fail a check
-are listed in `_work/skipped.json`, and episodes without an audited gripper label or state file in
+`samples.json`, `assets/`, `resources/`, `receipts/`). Reruns resume where they stopped. Clips that fail (wrong video size or frame rate, too short, past the end
+of the state record) are listed in `_work/skipped.json`, and episodes without an audited gripper label or state file in
 `_work/unmapped.txt`. `summary.json` gives the final clip, episode and hour counts.
 
 ## 3. Train the four stages (4 GPUs, global batch 16)

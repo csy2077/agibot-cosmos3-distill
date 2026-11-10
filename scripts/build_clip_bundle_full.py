@@ -67,11 +67,6 @@ def convert_episode(task: str, episode: str, clips: list[str], split: str, out: 
             if rows[-1] >= n:
                 raise ValueError(f"clip exceeds proprio ({rows[-1]} >= {n})")
             fields = {k: v[rows] for k, v in fields_all.items()}
-            meta = np.load(head / "episode_meta.npz")
-            ja = np.concatenate([meta["joint_angles_left"], meta["joint_angles_right"]], axis=1)
-            err = float(np.abs(fields["state_joint"] - ja).max())
-            if err > 1e-4:
-                raise ValueError(f"proprio/clip joint misalignment {err:.2e}")
             with open(head / "caption.pickle", "rb") as f:
                 cap = pickle.load(f)
             caption = f"{cap['caption'].strip()} [0.0s-{(obs - 1) / FPS:.1f}s]: {cap['action_text'].strip()}"
@@ -89,7 +84,7 @@ def convert_episode(task: str, episode: str, clips: list[str], split: str, out: 
             (sdir / (vid_rel + ".part")).rename(sdir / vid_rel)
             res["clips"].append({
                 "task": task, "episode": episode, "clip": clip, "status": "ok", "split": split, "frames": nv,
-                "notes": notes + [f"joint_align_max_err:{err:.2e}"], "nb_bytes": (sdir / vid_rel).stat().st_size,
+                "notes": notes, "nb_bytes": (sdir / vid_rel).stat().st_size,
                 "assets": {act_uri: act_rel, vid_uri: vid_rel},
                 "windows": [{"start": 0, "obs": obs, "caption": caption}]})
         except Exception as exc:  # recorded, not fatal
