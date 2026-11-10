@@ -150,7 +150,8 @@ EMA off (more with EMA on).
 
 **EMA.** The reference recipe keeps an EMA copy of the weights. The launcher defaults to `EMA=0` because the
 2-GPU tests ran out of memory at the optimizer step with EMA on. With 4 GPUs each GPU holds half as much
-optimizer state, so `EMA=1` may fit. Keep the choice the same across all stages, since Stage 3 reuses the Stage 0
+optimizer state, so `EMA=1` may fit. For the 4-GPU runs, turn EMA on to follow the reference recipe: run
+`export EMA=1` once before the four stage commands above, so every stage trains with EMA. Keep the choice the same across all stages, since Stage 3 reuses the Stage 0
 checkpoint. Export with `EMA=1` only from a run trained with EMA.
 
 **Memory.** Measured on the 2-GPU tests (1 sample/GPU, EMA off): Stage 0 ~86 GB/GPU, Stage 1 ~63 GB/GPU.
